@@ -1,40 +1,31 @@
-"use client";
-import { useState } from 'react';
+import Link from 'next/link';
+import { profile } from '@/data/profile';
 
-export default function TerminalPortfolio() {
-  const [history, setHistory] = useState<string[]>(["Bienvenue. Tapez 'help' pour voir les commandes."]);
-  const [input, setInput] = useState("");
-
-  const commands: any = {
-    help: "Commandes disponibles : ls, cd, cat, clear, contact",
-    ls: "projects/  skills/  bio.txt",
-    "cat bio.txt": "Développeur Full-stack passionné par Node.js et Ubuntu.",
-    contact: "Email: monadresse@mail.com | GitHub: @monpseudo"
-  };
-
-  const handleCommand = (e: React.FormEvent) => {
-    e.preventDefault();
-    const output = commands[input.toLowerCase()] || `Commande inconnue: ${input}`;
-    setHistory([...history, `> ${input}`, output]);
-    setInput("");
-  };
-
+export default function Home() {
   return (
-    <div className="bg-black text-green-400 p-6 font-mono h-96 overflow-y-auto border-2 border-green-900 rounded-lg shadow-2xl">
-      <div>
-        {history.map((line, i) => (
-          <div key={i} className="mb-1">{line}</div>
-        ))}
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-300 flex flex-col items-center justify-center p-6 font-mono">
+      <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter italic mb-2">{profile.name}</h1>
+      <p className="text-gray-500 text-sm mb-16 text-center max-w-md">{profile.tagline}</p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
+        <Link
+          href="/terminal"
+          className="group border border-blue-500/30 rounded-xl p-8 bg-[#0d0d0d] hover:bg-blue-500/5 transition-colors flex flex-col items-start"
+        >
+          <span className="text-[10px] uppercase tracking-widest text-blue-400 mb-3">$_</span>
+          <h2 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Mode terminal</h2>
+          <p className="text-sm text-gray-500">Pour ceux qui connaissent les commandes de base (ls, cd, cat...).</p>
+        </Link>
+
+        <Link
+          href="/simple"
+          className="group border border-white/10 rounded-xl p-8 bg-[#0d0d0d] hover:bg-white/5 transition-colors flex flex-col items-start"
+        >
+          <span className="text-[10px] uppercase tracking-widest text-gray-500 mb-3">☐</span>
+          <h2 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Version simplifiée</h2>
+          <p className="text-sm text-gray-500">Projets, liens et CV, tout cliquable, sans rien à taper.</p>
+        </Link>
       </div>
-      <form onSubmit={handleCommand} className="flex mt-2">
-        <span className="mr-2">user@portfolio:~$</span>
-        <input 
-          autoFocus
-          className="bg-transparent outline-none flex-1 border-none"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-      </form>
     </div>
   );
 }

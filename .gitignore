@@ -1,23 +1,15 @@
 # Dependencies
-backend/node_modules/
 frontend/node_modules/
 
 # Environment files and secrets
-backend/.env
 frontend/.env*
 !.env.example
 
 # Build and generated output
-backend/dist/
-backend/build/
 frontend/.next/
 frontend/out/
 frontend/build/
 **/*.tsbuildinfo
-
-# Runtime data and uploads
-backend/public/uploads/*
-!backend/public/uploads/.gitkeep
 
 # Logs and local tooling
 *.log
