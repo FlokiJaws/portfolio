@@ -1,31 +1,92 @@
-import Link from 'next/link';
+import Image from 'next/image';
 import { profile } from '@/data/profile';
 import { projects } from '@/data/projects';
+import { PageNav } from '@/components/PageNav';
+import { ProjectCard } from '@/components/ProjectCard';
+import { IconMail, IconDownload, IconGithub, IconLinkedin, IconExternalLink } from '@/components/icons';
 
 export default function SimplePage() {
+  const initial = profile.name.charAt(0).toUpperCase();
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-200 p-6 md:p-12">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-16">
-          <p className="text-blue-400 text-xs uppercase tracking-widest font-bold mb-3">Portfolio</p>
-          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-3">{profile.name}</h1>
-          <p className="text-gray-400 text-lg mb-6">{profile.tagline}</p>
-          <p className="text-gray-500 max-w-2xl mb-8">{profile.bio}</p>
-          <div className="flex flex-wrap gap-3">
-            <a href={profile.cvUrl} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-white text-black font-bold rounded-lg hover:bg-blue-600 hover:text-white transition-colors">
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-200">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-12 py-6 sm:py-10">
+        <div className="mb-10 sm:mb-12">
+          <PageNav mode="simple" />
+        </div>
+
+        <header className="relative mb-16 sm:mb-20">
+          <div
+            aria-hidden
+            className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-blue-600/20 blur-3xl pointer-events-none"
+          />
+          <div className="relative flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
+            {profile.avatarUrl ? (
+              <Image
+                src={profile.avatarUrl}
+                alt={profile.name}
+                width={96}
+                height={96}
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border border-white/10 shrink-0"
+              />
+            ) : (
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-800 flex items-center justify-center text-3xl sm:text-4xl font-black text-white shrink-0 shadow-lg shadow-blue-950/50">
+                {initial}
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-blue-400 text-xs uppercase tracking-widest font-bold mb-2">Portfolio</p>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight break-words">{profile.name}</h1>
+              <p className="text-gray-400 text-base sm:text-lg mt-1 break-words">{profile.tagline}</p>
+            </div>
+          </div>
+
+          <p className="relative text-gray-400 leading-relaxed max-w-2xl mb-8 break-words">{profile.bio}</p>
+
+          <div className="relative flex flex-wrap gap-3">
+            <a
+              href={profile.cvUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black text-sm font-bold rounded-lg hover:bg-blue-500 hover:text-white transition-colors shadow-lg shadow-black/20"
+            >
+              <IconDownload className="w-4 h-4" />
               Télécharger le CV
             </a>
-            <a href={`mailto:${profile.email}`} className="px-5 py-2.5 border border-white/20 rounded-lg hover:bg-white/5 transition-colors">
+            <a
+              href={`mailto:${profile.email}`}
+              className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/15 rounded-lg text-sm hover:bg-white/5 hover:border-white/30 transition-colors break-all"
+            >
+              <IconMail className="w-4 h-4 shrink-0" />
               {profile.email}
             </a>
-            <a href={profile.github} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 border border-white/20 rounded-lg hover:bg-white/5 transition-colors">
+            <a
+              href={profile.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/15 rounded-lg text-sm hover:bg-white/5 hover:border-white/30 transition-colors"
+            >
+              <IconGithub className="w-4 h-4" />
               GitHub
             </a>
-            <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 border border-white/20 rounded-lg hover:bg-white/5 transition-colors">
+            <a
+              href={profile.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/15 rounded-lg text-sm hover:bg-white/5 hover:border-white/30 transition-colors"
+            >
+              <IconLinkedin className="w-4 h-4" />
               LinkedIn
             </a>
             {profile.links.map((l) => (
-              <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 border border-white/20 rounded-lg hover:bg-white/5 transition-colors">
+              <a
+                key={l.url}
+                href={l.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/15 rounded-lg text-sm hover:bg-white/5 hover:border-white/30 transition-colors"
+              >
+                <IconExternalLink className="w-4 h-4" />
                 {l.label}
               </a>
             ))}
@@ -33,42 +94,19 @@ export default function SimplePage() {
         </header>
 
         <section>
-          <h2 className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-6">Projets</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <h2 className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-6">
+            Projets
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {projects.map((p) => (
-              <div key={p.slug} className="border border-white/10 rounded-xl p-6 bg-[#0d0d0d] flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-lg font-bold text-white">{p.title}</h3>
-                  <span className="text-[10px] uppercase tracking-wide text-blue-400">{p.context}{p.year ? ` · ${p.year}` : ''}</span>
-                </div>
-                <p className="text-sm text-gray-400 mb-4 flex-1">{p.description}</p>
-                {p.tags && p.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {p.tags.map((t) => (
-                      <span key={t} className="text-[10px] uppercase tracking-wide bg-white/5 text-gray-400 px-2 py-1 rounded">{t}</span>
-                    ))}
-                  </div>
-                )}
-                <div className="flex gap-3">
-                  {p.liveUrl && (
-                    <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white hover:text-blue-400 transition-colors">
-                      Voir le site →
-                    </a>
-                  )}
-                  {p.repoUrl && (
-                    <a href={p.repoUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors">
-                      Code source →
-                    </a>
-                  )}
-                </div>
-              </div>
+              <ProjectCard key={p.slug} project={p} />
             ))}
           </div>
         </section>
 
-        <Link href="/terminal" className="mt-16 inline-block text-[10px] uppercase tracking-widest text-gray-500 hover:text-blue-400 transition-colors">
-          ← Mode terminal
-        </Link>
+        <footer className="mt-16 sm:mt-20 pt-8 border-t border-white/5">
+          <PageNav mode="simple" />
+        </footer>
       </div>
     </div>
   );

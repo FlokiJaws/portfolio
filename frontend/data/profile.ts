@@ -13,6 +13,8 @@ export interface Profile {
   github: string;
   linkedin: string;
   links: Link[];
+  /** Optionnel : chemin dans frontend/public (ex: "/avatar.jpg"). Sans photo, une pastille avec l'initiale est affichée. */
+  avatarUrl?: string;
 }
 
 // Modifie ces valeurs directement, pas de redéploiement de backend nécessaire.
@@ -21,11 +23,11 @@ export const profile: Profile = {
   handle: "marley@cryptis-shell",
   tagline: "Étudiant en Master CRYPTIS — Cybersécurité",
   bio: "Développeur passionné par la cybersécurité, Node.js et Linux.",
-  email: "ton.email@example.com",
+  email: "marleycatillon@icloud.com",
   // Place le fichier dans frontend/public/cv.pdf
   cvUrl: "/cv.pdf",
-  github: "https://github.com/tonpseudo",
-  linkedin: "https://linkedin.com/in/tonpseudo",
+  github: "https://github.com/FlokiJaws",
+  linkedin: "https://linkedin.com/in/marleycatillon",
   links: [
     { label: "Site personnel", url: "https://example.com" },
   ],
