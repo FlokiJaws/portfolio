@@ -10,9 +10,9 @@ export default function Home() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full max-w-3xl">
         <Link
           href="/terminal"
-          className="group border border-blue-500/30 rounded-xl p-6 sm:p-8 bg-[#0d0d0d] hover:bg-blue-500/5 transition-colors flex flex-col items-start"
+          className="group border border-[#588157]/30 rounded-xl p-6 sm:p-8 bg-[#0d0d0d] hover:bg-[#588157]/10 transition-colors flex flex-col items-start"
         >
-          <span className="text-[10px] uppercase tracking-widest text-blue-400 mb-3">$_</span>
+          <span className="text-[10px] uppercase tracking-widest text-[#A3B18A] mb-3">$_</span>
           <h2 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Mode terminal</h2>
           <p className="text-sm text-gray-500">Pour ceux qui connaissent les commandes de base (ls, cd, cat...).</p>
         </Link>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Project } from '@/data/projects';
-import { IconGithub, IconArrowRight } from './icons';
+import { IconGithub, IconArrowRight, IconLock } from './icons';
 
 export function ProjectCard({ project }: { project: Project }) {
   const [open, setOpen] = useState(false);
@@ -18,10 +18,10 @@ export function ProjectCard({ project }: { project: Project }) {
 
   return (
     <>
-      <div className="group border border-white/10 rounded-xl p-5 sm:p-6 bg-[#0d0d0d] flex flex-col transition-colors hover:border-blue-500/40 hover:bg-blue-500/[0.03]">
+      <div className="group border border-white/10 rounded-xl p-5 sm:p-6 bg-[#0d0d0d] flex flex-col transition-colors hover:border-[#588157]/40 hover:bg-[#588157]/[0.05]">
         <div className="flex items-start justify-between gap-3 mb-2">
           <h3 className="text-lg font-bold text-white break-words">{project.title}</h3>
-          <span className="shrink-0 text-[10px] uppercase tracking-wide text-blue-400 bg-blue-500/10 px-2 py-1 rounded-full whitespace-nowrap">
+          <span className="shrink-0 text-[10px] uppercase tracking-wide text-[#A3B18A] bg-[#588157]/15 px-2 py-1 rounded-full whitespace-nowrap">
             {project.context}{project.year ? ` · ${project.year}` : ''}
           </span>
         </div>
@@ -38,20 +38,27 @@ export function ProjectCard({ project }: { project: Project }) {
         <div className="flex flex-wrap gap-4 pt-3 border-t border-white/5">
           <button
             onClick={() => setOpen(true)}
-            className="inline-flex items-center gap-1.5 text-sm font-bold text-white hover:text-blue-400 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm font-bold text-white hover:text-[#A3B18A] transition-colors"
           >
             Détails <IconArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
           </button>
-          {project.repoUrl && (
+          {project.repoUrl ? (
             <a
               href={project.repoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-400 hover:text-blue-400 transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-400 hover:text-[#A3B18A] transition-colors"
             >
               <IconGithub className="w-3.5 h-3.5" /> Code source
             </a>
-          )}
+          ) : project.repoPrivate ? (
+            <span
+              title="Code source privé"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-600 cursor-default"
+            >
+              <IconLock className="w-3.5 h-3.5" /> Repo privé
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -63,7 +70,7 @@ export function ProjectCard({ project }: { project: Project }) {
           <div
             role="dialog"
             aria-modal="true"
-            className="w-full max-w-lg max-h-[85vh] overflow-y-auto bg-[#0d0d0d] border border-blue-500/30 rounded-2xl p-6 sm:p-8 relative shadow-2xl"
+            className="w-full max-w-lg max-h-[85vh] overflow-y-auto bg-[#0d0d0d] border border-[#588157]/30 rounded-2xl p-6 sm:p-8 relative shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -74,7 +81,7 @@ export function ProjectCard({ project }: { project: Project }) {
               ✕
             </button>
 
-            <span className="text-[10px] uppercase tracking-wide text-blue-400 bg-blue-500/10 px-2 py-1 rounded-full">
+            <span className="text-[10px] uppercase tracking-wide text-[#A3B18A] bg-[#588157]/15 px-2 py-1 rounded-full">
               {project.context}{project.year ? ` · ${project.year}` : ''}
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-white mt-4 mb-4 tracking-tight break-words">{project.title}</h3>
@@ -86,7 +93,7 @@ export function ProjectCard({ project }: { project: Project }) {
               <ul className="space-y-2 mb-6">
                 {project.highlights.map((h) => (
                   <li key={h} className="flex items-start gap-2.5 text-sm text-gray-300 leading-relaxed break-words">
-                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-[#588157] shrink-0" />
                     {h}
                   </li>
                 ))}
@@ -116,12 +123,12 @@ export function ProjectCard({ project }: { project: Project }) {
                   href={project.liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black text-sm font-bold rounded-lg hover:bg-blue-500 hover:text-white transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#DAD7CD] text-black text-sm font-bold rounded-lg hover:bg-[#3A5A40] hover:text-white transition-colors"
                 >
                   Voir le site
                 </a>
               )}
-              {project.repoUrl && (
+              {project.repoUrl ? (
                 <a
                   href={project.repoUrl}
                   target="_blank"
@@ -130,7 +137,14 @@ export function ProjectCard({ project }: { project: Project }) {
                 >
                   <IconGithub className="w-4 h-4" /> Code source
                 </a>
-              )}
+              ) : project.repoPrivate ? (
+                <span
+                  title="Code source privé"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/10 rounded-lg text-sm text-gray-600 cursor-default"
+                >
+                  <IconLock className="w-4 h-4" /> Repo privé
+                </span>
+              ) : null}
             </div>
           </div>
         </div>

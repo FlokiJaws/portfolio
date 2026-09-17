@@ -13,8 +13,6 @@ export interface Profile {
   github: string;
   linkedin: string;
   links: Link[];
-  /** Optionnel : chemin dans frontend/public (ex: "/avatar.jpg"). Sans photo, une pastille avec l'initiale est affichée. */
-  avatarUrl?: string;
 }
 
 // Modifie ces valeurs directement, pas de redéploiement de backend nécessaire.
