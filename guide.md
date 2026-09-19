@@ -75,15 +75,18 @@ docker compose up -d --build
 **Pourquoi :** faire tourner le portfolio réellement en production, servi via le domaine.
 **Vérifié :** https://marleyportfolio.fr accessible avec HTTPS.
 
+### 12. Redéploiement automatique (CI/CD avec GitHub Actions)
+Clé SSH dédiée (`deploy_portfolio`) ajoutée au VPS, secrets `VPS_SSH_KEY`/`VPS_HOST`/`VPS_USER` sur GitHub, workflow `.github/workflows/deploy.yml` (déclenché sur push vers `main`, se connecte en SSH et relance `git pull && docker compose up -d --build`).
+**Pourquoi :** qu'un `git push` sur `main` mette à jour le site en ligne tout seul, sans reconnexion manuelle au VPS.
+**Vérifié :** premier déploiement automatique passé en vert dans l'onglet Actions de GitHub.
+
+### 13. CMS Strapi + PostgreSQL
+Projet Strapi scaffoldé dans `cms/` (TypeScript, préconfiguré pour Postgres via variables d'env). `cms/Dockerfile`, services `postgres` et `strapi` ajoutés à `docker-compose.yml`, bloc `cms.marleyportfolio.fr` ajouté au `Caddyfile`. Les secrets Strapi vivent uniquement dans `cms/.env` (jamais commité, créé à la main sur le VPS).
+**Pourquoi :** interface d'administration pour ajouter/modifier des projets (titre, description...) sans toucher au code.
+
 ---
 
 ## 🔜 À venir
-
-### 12. Redéploiement automatique (CI/CD avec GitHub Actions)
-**Pourquoi :** qu'un `git push` sur `main` mette à jour le site en ligne tout seul, sans reconnexion manuelle au VPS.
-
-### 13. Choisir et déployer un CMS (Strapi ou Payload) + base de données
-**Pourquoi :** permettre d'ajouter/modifier des projets via une interface (formulaire) au lieu d'éditer le code à chaque fois.
 
 ### 14. Brancher le frontend sur l'API du CMS
 **Pourquoi :** que `data/projects.ts` soit remplacé par des données venant du CMS, affichées dynamiquement.

@@ -1,3 +1,7 @@
 marleyportfolio.fr, www.marleyportfolio.fr {
 	reverse_proxy app:3000
 }
+
+cms.marleyportfolio.fr {
+	reverse_proxy strapi:1337
+}
