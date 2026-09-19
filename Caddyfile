@@ -1,0 +1,3 @@
+marleyportfolio.fr, www.marleyportfolio.fr {
+	reverse_proxy app:3000
+}
