@@ -62,19 +62,28 @@ sudo usermod -aG docker ubuntu
 
 ---
 
-## 🔜 À venir
-
 ### 10. Reverse proxy + HTTPS automatique (Caddy)
+`Dockerfile` (build multi-étapes Next.js en mode `standalone`), `docker-compose.yml` (services `app` + `caddy`), `Caddyfile` (reverse proxy vers `app:3000`).
 **Pourquoi :** un seul point d'entrée sur les ports 80/443 qui redirige vers le bon service en interne, avec un certificat HTTPS généré et renouvelé automatiquement (Let's Encrypt).
 
 ### 11. Déployer le site Next.js sur le VPS
+```bash
+git clone https://github.com/FlokiJaws/portfolio.git
+cd portfolio
+docker compose up -d --build
+```
 **Pourquoi :** faire tourner le portfolio réellement en production, servi via le domaine.
+**Vérifié :** https://marleyportfolio.fr accessible avec HTTPS.
 
-### 12. Choisir et déployer un CMS (Strapi ou Payload) + base de données
+---
+
+## 🔜 À venir
+
+### 12. Redéploiement automatique (CI/CD avec GitHub Actions)
+**Pourquoi :** qu'un `git push` sur `main` mette à jour le site en ligne tout seul, sans reconnexion manuelle au VPS.
+
+### 13. Choisir et déployer un CMS (Strapi ou Payload) + base de données
 **Pourquoi :** permettre d'ajouter/modifier des projets via une interface (formulaire) au lieu d'éditer le code à chaque fois.
 
-### 13. Brancher le frontend sur l'API du CMS
+### 14. Brancher le frontend sur l'API du CMS
 **Pourquoi :** que `data/projects.ts` soit remplacé par des données venant du CMS, affichées dynamiquement.
-
-### 14. Mise en place du redéploiement automatique
-**Pourquoi :** que `git push` (ou une modif dans le CMS) mette à jour le site en ligne sans étapes manuelles.
