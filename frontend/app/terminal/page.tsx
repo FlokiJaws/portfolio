@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { profile } from '@/data/profile';
-import { projects } from '@/data/projects';
+import type { Project } from '@/data/projects';
+import { getProjects } from '@/lib/cms';
 import { PageShell } from '@/components/PageShell';
 
 type HistoryLine = { type: 'cmd' | 'out'; text: string; path?: string };
@@ -27,30 +28,6 @@ type FocusedContact = {
   links: { label: string; url: string }[];
 };
 
-const fileSystem: Record<string, { type: 'dir'; children: string[] }> = {
-  "~": { type: "dir", children: ["projects", "skills", "bio.txt", "contact"] },
-  "~/projects": { type: "dir", children: projects.map((p) => p.slug) },
-  "~/skills": { type: "dir", children: ["languages.txt", "tools.txt"] },
-};
-
-const fileContent: Record<string, string | FocusedProject> = {
-  "bio.txt": profile.bio,
-  "languages.txt": "JS, TS, Python, C++, Rust.",
-  "tools.txt": "Git, Docker, Next.js, Linux.",
-};
-projects.forEach((p) => {
-  fileContent[p.slug] = {
-    title: p.title,
-    description: p.details ?? p.description,
-    highlights: p.highlights,
-    note: p.note,
-    image: p.image,
-    liveUrl: p.liveUrl,
-    repoUrl: p.repoUrl,
-    repoPrivate: p.repoPrivate,
-  };
-});
-
 const contactData: FocusedContact = {
   sumup: profile.tagline,
   email: profile.email,
@@ -61,6 +38,8 @@ const contactData: FocusedContact = {
 };
 
 export default function TerminalPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+
   const [history, setHistory] = useState<HistoryLine[]>([
     { type: 'out', text: "Tapez 'help' pour voir les commandes." }
   ]);
@@ -73,6 +52,37 @@ export default function TerminalPage() {
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const terminalEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getProjects().then(setProjects);
+  }, []);
+
+  const fileSystem = useMemo<Record<string, { type: 'dir'; children: string[] }>>(() => ({
+    "~": { type: "dir", children: ["projects", "skills", "bio.txt", "contact"] },
+    "~/projects": { type: "dir", children: projects.map((p) => p.slug) },
+    "~/skills": { type: "dir", children: ["languages.txt", "tools.txt"] },
+  }), [projects]);
+
+  const fileContent = useMemo<Record<string, string | FocusedProject>>(() => {
+    const content: Record<string, string | FocusedProject> = {
+      "bio.txt": profile.bio,
+      "languages.txt": "JS, TS, Python, C++, Rust.",
+      "tools.txt": "Git, Docker, Next.js, Linux.",
+    };
+    projects.forEach((p) => {
+      content[p.slug] = {
+        title: p.title,
+        description: p.details ?? p.description,
+        highlights: p.highlights,
+        note: p.note,
+        image: p.image,
+        liveUrl: p.liveUrl,
+        repoUrl: p.repoUrl,
+        repoPrivate: p.repoPrivate,
+      };
+    });
+    return content;
+  }, [projects]);
 
   useEffect(() => {
     terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });

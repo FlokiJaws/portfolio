@@ -1,10 +1,12 @@
 import { profile } from '@/data/profile';
-import { projects } from '@/data/projects';
+import { getProjects } from '@/lib/cms';
 import { PageShell } from '@/components/PageShell';
 import { ProjectCard } from '@/components/ProjectCard';
 import { IconMail, IconDownload, IconGithub, IconLinkedin, IconExternalLink } from '@/components/icons';
 
-export default function SimplePage() {
+export default async function SimplePage() {
+  const projects = await getProjects();
+
   return (
     <PageShell mode="simple" className="text-gray-200">
       <header className="relative mb-16 sm:mb-20">

@@ -83,10 +83,28 @@ Clé SSH dédiée (`deploy_portfolio`) ajoutée au VPS, secrets `VPS_SSH_KEY`/`V
 ### 13. CMS Strapi + PostgreSQL
 Projet Strapi scaffoldé dans `cms/` (TypeScript, préconfiguré pour Postgres via variables d'env). `cms/Dockerfile`, services `postgres` et `strapi` ajoutés à `docker-compose.yml`, bloc `cms.marleyportfolio.fr` ajouté au `Caddyfile`. Les secrets Strapi vivent uniquement dans `cms/.env` (jamais commité, créé à la main sur le VPS).
 **Pourquoi :** interface d'administration pour ajouter/modifier des projets (titre, description...) sans toucher au code.
+**Vérifié :** admin accessible sur https://cms.marleyportfolio.fr/admin (création du compte admin au premier accès).
+
+### 13b. Modèle "Project" (Content-Type)
+Créé **en local** puis poussé sur Git : `cms/src/api/project/` (schéma + routes/contrôleur/service générés) et `cms/types/`. Champs : `title`, `slug`, `description`, `details`, `highlights` (un point par ligne), `note`, `context`, `year`, `tags` (séparés par des virgules), `image` (média), `liveUrl`, `repoUrl`, `repoPrivate`.
+```bash
+cd cms
+DATABASE_CLIENT=sqlite DATABASE_FILENAME=.tmp/data.db npm run develop   # http://localhost:1337/admin
+```
+**Pourquoi en local :** le Content-Type Builder est désactivé en production (Strapi tourne en `NODE_ENV=production` sur le VPS). On modélise en dev (base SQLite jetable, `better-sqlite3` installé en local uniquement, non commité), on commit le schéma généré, et la prod le récupère au redéploiement.
+**Bon à savoir :**
+- `draftAndPublish` est activé : un projet reste **invisible** de l'API tant qu'on n'a pas cliqué **Publish**.
+- Les permissions se règlent directement en prod : *Settings → Users & Permissions → Roles → Public → Project → `find` + `findOne`*.
+- Les données (les projets) vivent dans le Postgres du VPS ; le SQLite local ne sert qu'à modéliser.
+
+### 14. Brancher le frontend sur l'API du CMS
+`frontend/lib/cms.ts` (`getProjects()` : appelle `/api/projects?populate=image` et convertit la réponse Strapi vers le type `Project`), `/simple` devenu asynchrone (rendu serveur, revalidation toutes les 60 s), `/terminal` qui charge les projets côté client. `data/projects.ts` ne garde plus que le type. L'URL du CMS est passée au build Docker (`NEXT_PUBLIC_CMS_URL`, figée dans le bundle au build, d'où l'`ARG` dans le `Dockerfile` et `args` dans `docker-compose.yml`).
+**Pourquoi :** ajouter ou modifier un projet dans Strapi le fait apparaître sur le site en ~1 minute, sans code ni redéploiement.
 
 ---
 
-## 🔜 À venir
+## 🔜 À venir / pistes
 
-### 14. Brancher le frontend sur l'API du CMS
-**Pourquoi :** que `data/projects.ts` soit remplacé par des données venant du CMS, affichées dynamiquement.
+- Enrichir la fiche « Portfolio » (VPS, Docker, Caddy, CI/CD, Strapi) : bon argument CV.
+- Sauvegarde du volume Postgres du VPS (les projets ne sont pas dans Git).
+- Photos/captures de projets via la médiathèque Strapi (champ `image` déjà prêt).

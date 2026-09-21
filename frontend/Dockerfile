@@ -7,6 +7,8 @@ RUN npm ci
 # --- Build ---
 FROM node:22-alpine AS builder
 WORKDIR /app
+ARG NEXT_PUBLIC_CMS_URL
+ENV NEXT_PUBLIC_CMS_URL=$NEXT_PUBLIC_CMS_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build

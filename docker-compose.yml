@@ -3,6 +3,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_CMS_URL: https://cms.marleyportfolio.fr
     restart: unless-stopped
 
   postgres:
