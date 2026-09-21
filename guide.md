@@ -101,6 +101,14 @@ DATABASE_CLIENT=sqlite DATABASE_FILENAME=.tmp/data.db npm run develop   # http:/
 `frontend/lib/cms.ts` (`getProjects()` : appelle `/api/projects?populate=image` et convertit la réponse Strapi vers le type `Project`), `/simple` devenu asynchrone (rendu serveur, revalidation toutes les 60 s), `/terminal` qui charge les projets côté client. `data/projects.ts` ne garde plus que le type. L'URL du CMS est passée au build Docker (`NEXT_PUBLIC_CMS_URL`, figée dans le bundle au build, d'où l'`ARG` dans le `Dockerfile` et `args` dans `docker-compose.yml`).
 **Pourquoi :** ajouter ou modifier un projet dans Strapi le fait apparaître sur le site en ~1 minute, sans code ni redéploiement.
 
+### 15. Finitions partage / SEO
+- `app/opengraph-image.tsx` : image d'aperçu (1200×630) générée par code avec `next/og`, affichée quand on partage le lien (LinkedIn, Discord...). Reprend la palette et lit nom + accroche dans `data/profile.ts`.
+- `app/icon.tsx` : favicon généré par code (`>_`), à la place du favicon Next.js par défaut.
+- `app/not-found.tsx` : page 404 dans le style terminal, avec liens de retour.
+- `app/layout.tsx` : `<html lang="fr">`, `metadataBase`, titres avec gabarit (`Version simplifiée | Marley`), balises OpenGraph/Twitter ; titres d'onglet pour `/simple` et `/terminal`.
+- Nettoyage de `public/` (SVG de démo Next.js, ancien logo). Le dossier est conservé via `public/.gitkeep` : le `Dockerfile` fait un `COPY /app/public`, sans dossier le build de production échouerait.
+**Pourquoi :** un lien partagé affiche un vrai aperçu, l'onglet a une identité, et le site déclare la bonne langue.
+
 ---
 
 ## 🔜 À venir / pistes

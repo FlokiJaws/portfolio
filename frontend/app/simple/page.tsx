@@ -1,8 +1,13 @@
+import type { Metadata } from 'next';
 import { profile } from '@/data/profile';
 import { getProjects } from '@/lib/cms';
 import { PageShell } from '@/components/PageShell';
 import { ProjectCard } from '@/components/ProjectCard';
 import { IconMail, IconDownload, IconGithub, IconLinkedin, IconExternalLink } from '@/components/icons';
+
+export const metadata: Metadata = {
+  title: 'Version simplifiée',
+};
 
 export default async function SimplePage() {
   const projects = await getProjects();
