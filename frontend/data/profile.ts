@@ -26,7 +26,5 @@ export const profile: Profile = {
   cvUrl: "/cv.pdf",
   github: "https://github.com/FlokiJaws",
   linkedin: "https://linkedin.com/in/marleycatillon",
-  links: [
-    { label: "Site personnel", url: "https://example.com" },
-  ],
+  links: [],
 };
