@@ -75,10 +75,16 @@ export default function TerminalPage() {
       "tools.txt":
         "Linux (Ubuntu)       -- administration, durcissement\n" +
         "Docker / Compose     -- conteneurisation, deploiement\n" +
+        "Kubernetes           -- bases, en formation\n" +
         "Git / GitHub Actions -- versioning, CI/CD\n" +
-        "PostgreSQL           -- bases de donnees\n" +
+        "PostgreSQL           -- bases de donnees relationnelles\n" +
+        "Firebase             -- auth, Firestore, Cloud Functions\n" +
+        "Strapi               -- CMS headless (ce portfolio)\n" +
+        "React / Next.js      -- interfaces web\n" +
+        "Quarkus              -- back-end Java, API REST\n" +
         "Caddy                -- reverse proxy, HTTPS auto\n" +
-        "LangGraph / RAG      -- agents IA, Chroma",
+        "LangGraph / RAG      -- agents IA, Chroma\n" +
+        "MPI / OpenMP         -- calcul parallele (C)",
     };
     projects.forEach((p) => {
       content[p.slug] = {
