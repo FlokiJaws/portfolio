@@ -37,6 +37,63 @@ const contactData: FocusedContact = {
   links: profile.links,
 };
 
+const SL_TRAIN =
+  "      .--.\n" +
+  "   .-(    ).\n" +
+  "  (___.__)__)\n" +
+  " ___|=|__|=|______\n" +
+  "|   TOOT TOOT !   |__\n" +
+  "|__________________|\n" +
+  " (o)(o)------(o)(o)\n" +
+  "\n" +
+  "(tu voulais dire 'ls' ?)";
+
+const MATRIX_CHARS = "01アイウエオカキクケコサシスセソタチツテト";
+
+type MatrixColumn = { text: string; duration: number; delay: number };
+
+function buildMatrixColumns(count: number, height: number): MatrixColumn[] {
+  return Array.from({ length: count }, () => ({
+    text: Array.from({ length: height }, () => MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]).join("\n"),
+    duration: 1.2 + Math.random(),
+    delay: Math.random() * 0.6,
+  }));
+}
+
+/** Réponses "easter egg" pour les commandes suspectes (scan, injection, destruction...). */
+function getEasterEgg(fullCmd: string, command: string): string | null {
+  const lower = fullCmd.toLowerCase();
+
+  if (/:\(\)\s*\{\s*:\|:&\s*\}\s*;\s*:/.test(fullCmd)) {
+    return "Fork bomb détectée. Gg, mais c'est du React côté client : au pire ça crashe ton onglet, pas le serveur ;)";
+  }
+  if (lower.includes("1=1") || lower.includes("drop table") || lower.includes("union select") || lower.includes("' or '")) {
+    return "Belle tentative d'injection SQL. Pas de base de données ici, mais j'apprécie le geste 😏";
+  }
+  if (lower.includes("<script")) {
+    return "XSS ? Rien n'est rendu en HTML ici, gg quand même.";
+  }
+  if (command === "sudo") {
+    return "Nice try. 'sudo' ne marche pas plus ici que dans la vraie vie sans mot de passe.";
+  }
+  if (command === "su") {
+    return "Permission denied : tu n'es ni dans /etc/sudoers, ni dans ma vie privée.";
+  }
+  if (command === "rm") {
+    return "Permission denied. (Rassure-toi, même si ça marchait, j'ai des backups)";
+  }
+  if (["nmap", "ping", "nc", "netcat", "wget", "curl"].includes(command)) {
+    return "Scan refusé : il n'y a rien à scanner, ce \"serveur\" est du JS dans ton navigateur.";
+  }
+  if (command === "ssh") {
+    return "Connection refused : tu n'es pas dans authorized_keys.";
+  }
+  if (command === "sl") {
+    return SL_TRAIN;
+  }
+  return null;
+}
+
 export default function TerminalPage() {
   const [projects, setProjects] = useState<Project[]>([]);
 
@@ -53,6 +110,9 @@ export default function TerminalPage() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
+  const [matrixRain, setMatrixRain] = useState(false);
+  const [matrixColumns, setMatrixColumns] = useState<MatrixColumn[]>([]);
+
   useEffect(() => {
     getProjects().then(setProjects);
   }, []);
@@ -66,6 +126,12 @@ export default function TerminalPage() {
   const fileContent = useMemo<Record<string, string | FocusedProject>>(() => {
     const content: Record<string, string | FocusedProject> = {
       "bio.txt": profile.bio,
+      "flag.txt":
+        "CTF{tu_cherches_trop_loin_mais_jadore_ca}\n" +
+        "Bien joué, mais ce n'est pas vraiment un CTF ici. Si t'es arrivé jusque là,\n" +
+        "contacte-moi (commande `contact`) -- on en discute autour d'un café.",
+      "/etc/passwd": "cat: /etc/passwd: Permission denied (et sinon y'a que du café dedans ☕)",
+      "/etc/shadow": "cat: /etc/shadow: Permission denied (et sinon y'a que du café dedans ☕)",
       "experience.txt":
         "Stagiaire developpeur full-stack -- GAMER CLASH SARL (Gamecash), Limoges\n" +
         "  03/2025 - 05/2025 (8 semaines)\n" +
@@ -146,6 +212,20 @@ export default function TerminalPage() {
 
     if (command === "clear") { setHistory([]); return; }
 
+    if (command === "matrix") {
+      setMatrixColumns(buildMatrixColumns(28, 18));
+      setMatrixRain(true);
+      setTimeout(() => setMatrixRain(false), 3000);
+      setHistory(prev => [...prev, { type: 'cmd', text: trimmedCmd, path: currentPath }, { type: 'out', text: "Wake up, Neo..." }]);
+      return;
+    }
+
+    const easterEgg = getEasterEgg(trimmedCmd, command);
+    if (easterEgg) {
+      setHistory(prev => [...prev, { type: 'cmd', text: trimmedCmd, path: currentPath }, { type: 'out', text: easterEgg }]);
+      return;
+    }
+
     switch (command) {
       case "contact": setFocusedContact(contactData); return;
       case "cat":
@@ -206,6 +286,31 @@ export default function TerminalPage() {
     <PageShell mode="terminal" className="text-gray-300 font-mono" fill>
       <div className="flex-1 min-h-0 w-full flex flex-col items-center justify-center">
         <div className="w-full max-w-4xl min-h-0 h-[65vh] sm:h-[68vh] flex flex-col bg-[#0d0d0d] border border-[#588157]/30 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden relative">
+
+        {matrixRain && (
+          <div className="absolute inset-0 z-[80] overflow-hidden bg-black pointer-events-none">
+            <style>{`
+              @keyframes matrix-fall {
+                0% { transform: translateY(-100%); opacity: 0; }
+                10% { opacity: 1; }
+                100% { transform: translateY(650%); opacity: 0.2; }
+              }
+            `}</style>
+            {matrixColumns.map((col, i) => (
+              <span
+                key={i}
+                className="absolute top-0 text-[#00ff41] font-mono text-xs leading-4 whitespace-pre"
+                style={{
+                  left: `${(i / matrixColumns.length) * 100}%`,
+                  animation: `matrix-fall ${col.duration}s linear infinite`,
+                  animationDelay: `${col.delay}s`,
+                }}
+              >
+                {col.text}
+              </span>
+            ))}
+          </div>
+        )}
 
         {(focusedContact || focusedProject) && (
           <div className="absolute inset-0 bg-[#0d0d0d] z-[60] flex flex-col p-5 sm:p-8 md:p-12 overflow-y-auto animate-in fade-in zoom-in duration-300">
