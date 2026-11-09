@@ -1,7 +1,20 @@
 marleyportfolio.fr, www.marleyportfolio.fr {
-	reverse_proxy app:3000
+    reverse_proxy app:3000
 }
 
 cms.marleyportfolio.fr {
-	reverse_proxy strapi:1337
+    reverse_proxy strapi:1337
+}
+
+# Service tournant directement sur l'hôte (hors Docker) sur le port 8000.
+# Identité exacte du service non retrouvée -- à vérifier (ss -tlnp | grep 8000).
+vps-e07e03ae.vps.ovh.net {
+    encode gzip
+    reverse_proxy host.docker.internal:8000
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy no-referrer
+    }
 }
