@@ -194,6 +194,7 @@ export default function TerminalPage() {
       if (e.ctrlKey && e.key === 'c') {
         setFocusedProject(null);
         setFocusedContact(null);
+        setMatrixRain(false);
       }
     };
     window.addEventListener('keydown', handleGlobalKeyDown);
@@ -215,8 +216,7 @@ export default function TerminalPage() {
     if (command === "matrix") {
       setMatrixColumns(buildMatrixColumns(28, 18));
       setMatrixRain(true);
-      setTimeout(() => setMatrixRain(false), 3000);
-      setHistory(prev => [...prev, { type: 'cmd', text: trimmedCmd, path: currentPath }, { type: 'out', text: "Wake up, Neo..." }]);
+      setHistory(prev => [...prev, { type: 'cmd', text: trimmedCmd, path: currentPath }, { type: 'out', text: "Wake up, Neo... (Ctrl+C pour sortir)" }]);
       return;
     }
 
