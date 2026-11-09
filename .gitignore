@@ -11,6 +11,9 @@ frontend/out/
 frontend/build/
 **/*.tsbuildinfo
 
+# CV : source complète avec téléphone et date de naissance, dépôt public
+cv/
+
 # Logs and local tooling
 *.log
 .DS_Store
