@@ -58,7 +58,7 @@ export default function TerminalPage() {
   }, []);
 
   const fileSystem = useMemo<Record<string, { type: 'dir'; children: string[] }>>(() => ({
-    "~": { type: "dir", children: ["projects", "skills", "bio.txt", "contact"] },
+    "~": { type: "dir", children: ["projects", "skills", "bio.txt", "experience.txt", "contact"] },
     "~/projects": { type: "dir", children: projects.map((p) => p.slug) },
     "~/skills": { type: "dir", children: ["languages.txt", "tools.txt"] },
   }), [projects]);
@@ -66,6 +66,23 @@ export default function TerminalPage() {
   const fileContent = useMemo<Record<string, string | FocusedProject>>(() => {
     const content: Record<string, string | FocusedProject> = {
       "bio.txt": profile.bio,
+      "experience.txt":
+        "Stagiaire developpeur full-stack -- GAMER CLASH SARL (Gamecash), Limoges\n" +
+        "  03/2025 - 05/2025 (8 semaines)\n" +
+        "  Conception et mise en production en autonomie d'une plateforme e-commerce\n" +
+        "  (React, Firebase, Node.js, Vercel), de l'analyse des besoins au deploiement.\n" +
+        "\n" +
+        "Employe polyvalent -- Gamecash, Limoges (CDI etudiant)\n" +
+        "  09/2025 - 06/2026\n" +
+        "  Conseil client, rachat de produits d'occasion, diagnostic et remise en etat.\n" +
+        "\n" +
+        "Employe drive et rayon fruits & legumes -- Super U (CDI etudiant)\n" +
+        "  depuis 06/2026\n" +
+        "  Rayon gere seul le week-end : mise en rayon, fraicheur, tenue du rayon.\n" +
+        "\n" +
+        "Intervenant -- Lycee Saint-Jean (projet de M1)\n" +
+        "  2025-2026\n" +
+        "  Introduction au Big Data, a l'IA et a la cybersecurite aupres de classes de SNT.",
       "languages.txt":
         "Python        -- scripting, IA (LangGraph, RAG)\n" +
         "C              -- crypto, calcul parallele (MPI/OpenMP)\n" +

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { profile } from '@/data/profile';
+import { experiences } from '@/data/experiences';
 import { getProjects } from '@/lib/cms';
 import { PageShell } from '@/components/PageShell';
 import { ProjectCard } from '@/components/ProjectCard';
@@ -76,6 +77,29 @@ export default async function SimplePage() {
           ))}
         </div>
       </header>
+
+      <section className="mb-16 sm:mb-20">
+        <h2 className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-6">
+          Expérience
+        </h2>
+        <div className="space-y-5">
+          {experiences.map((exp) => (
+            <div key={`${exp.role}-${exp.org}`} className="border border-white/10 rounded-xl p-5 sm:p-6 bg-[#0d0d0d]">
+              <div className="flex items-start justify-between gap-3 mb-1 flex-wrap">
+                <h3 className="text-base font-bold text-white break-words">
+                  {exp.role} <span className="text-gray-400 font-normal">— {exp.org}{exp.place ? `, ${exp.place}` : ''}</span>
+                </h3>
+                <span className="shrink-0 text-[10px] uppercase tracking-wide text-[#A3B18A] bg-[#588157]/15 px-2 py-1 rounded-full whitespace-nowrap">
+                  {exp.period}
+                </span>
+              </div>
+              {exp.description && (
+                <p className="text-sm text-gray-400 break-words">{exp.description}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section>
         <h2 className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-6">
