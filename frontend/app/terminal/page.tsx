@@ -71,6 +71,7 @@ export default function TerminalPage() {
         "C              -- crypto, calcul parallele (MPI/OpenMP)\n" +
         "Java           -- back-end (Quarkus)\n" +
         "TypeScript/JS  -- web (React, Next.js, Node.js)\n" +
+        "SQL            -- PostgreSQL, requetes, securite (anti-injection)\n" +
         "Rust           -- bases, en apprentissage",
       "tools.txt":
         "Linux (Ubuntu)       -- administration, durcissement\n" +
