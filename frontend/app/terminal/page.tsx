@@ -66,8 +66,19 @@ export default function TerminalPage() {
   const fileContent = useMemo<Record<string, string | FocusedProject>>(() => {
     const content: Record<string, string | FocusedProject> = {
       "bio.txt": profile.bio,
-      "languages.txt": "Python, C, Java, TypeScript / JavaScript, bases en Rust.",
-      "tools.txt": "Linux, Docker, Git, PostgreSQL, React / Next.js, Caddy, LangGraph (IA).",
+      "languages.txt":
+        "Python        -- scripting, IA (LangGraph, RAG)\n" +
+        "C              -- crypto, calcul parallele (MPI/OpenMP)\n" +
+        "Java           -- back-end (Quarkus)\n" +
+        "TypeScript/JS  -- web (React, Next.js, Node.js)\n" +
+        "Rust           -- bases, en apprentissage",
+      "tools.txt":
+        "Linux (Ubuntu)       -- administration, durcissement\n" +
+        "Docker / Compose     -- conteneurisation, deploiement\n" +
+        "Git / GitHub Actions -- versioning, CI/CD\n" +
+        "PostgreSQL           -- bases de donnees\n" +
+        "Caddy                -- reverse proxy, HTTPS auto\n" +
+        "LangGraph / RAG      -- agents IA, Chroma",
     };
     projects.forEach((p) => {
       content[p.slug] = {
