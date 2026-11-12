@@ -1,5 +1,6 @@
 # Dependencies
 frontend/node_modules/
+veille/node_modules/
 
 # Environment files and secrets
 .env
@@ -10,6 +11,7 @@ frontend/.env*
 frontend/.next/
 frontend/out/
 frontend/build/
+veille/.next/
 **/*.tsbuildinfo
 
 # CV : source complète avec téléphone et date de naissance, dépôt public

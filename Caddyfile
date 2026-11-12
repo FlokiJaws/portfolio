@@ -6,6 +6,11 @@ cms.marleyportfolio.fr {
     reverse_proxy strapi:1337
 }
 
+veille.marleyportfolio.fr {
+    encode gzip
+    reverse_proxy veille:3000
+}
+
 # Service tournant directement sur l'hôte (hors Docker) sur le port 8000.
 # Identité exacte du service non retrouvée -- à vérifier (ss -tlnp | grep 8000).
 vps-e07e03ae.vps.ovh.net {
