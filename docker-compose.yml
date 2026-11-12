@@ -29,6 +29,23 @@ services:
     depends_on:
       - postgres
 
+  # App de veille cyber (PWA). Utilise le Postgres ci-dessus, dans un schéma séparé « veille ».
+  veille:
+    build:
+      context: ./veille
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      VEILLE_PASSWORD: ${VEILLE_PASSWORD:-}
+      VEILLE_URL: https://veille.marleyportfolio.fr
+      NVD_API_KEY: ${NVD_API_KEY:-}
+    depends_on:
+      - postgres
+
   caddy:
     image: caddy:2-alpine
     extra_hosts:
@@ -44,6 +61,7 @@ services:
     depends_on:
       - app
       - strapi
+      - veille
 
 volumes:
   caddy_data:
