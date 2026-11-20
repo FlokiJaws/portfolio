@@ -38,7 +38,7 @@ cms.marleyportfolio.fr {
 }
 
 veille.marleyportfolio.fr {
-    encode gzip
+    import security
     reverse_proxy veille:3000
 }
 
