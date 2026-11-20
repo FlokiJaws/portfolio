@@ -25,11 +25,14 @@ cms.marleyportfolio.fr {
     import security
 
     # Mot de passe devant l'admin Strapi (identifiant et hash bcrypt dans .env).
-    # Le panneau appelle sa propre API /admin/* avec "Authorization: Bearer <jwt>",
-    # ce qui écrase l'en-tête Basic : ces appels-là passent, Strapi vérifie le JWT.
-    # Les routes de connexion exigent toujours le mot de passe Caddy,
-    # même avec un faux en-tête Bearer, pour bloquer le brute-force.
-    @admin_protected expression `path('/admin', '/admin/*') && (!header({'Authorization': 'Bearer *'}) || path('/admin/login', '/admin/register-admin', '/admin/register', '/admin/forgot-password', '/admin/reset-password', '/admin/renew-token', '/admin/access-token'))`
+    # Le panneau appelle sa propre API /admin/* avec "Authorization: Bearer ...",
+    # même avant connexion. Le navigateur ne peut pas y ajouter le Basic :
+    # ces appels passent donc sans mot de passe Caddy, et Strapi vérifie
+    # le JWT et limite les essais de connexion lui-même.
+    @admin_protected {
+        path /admin /admin/*
+        not header Authorization "Bearer *"
+    }
     basic_auth @admin_protected {
         {$CMS_ADMIN_USER} {$CMS_ADMIN_HASH}
     }
