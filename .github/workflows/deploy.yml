@@ -4,22 +4,61 @@ on:
   push:
     branches: [main]
 
+# Les déploiements sont mis en file : on ne coupe jamais un `docker compose up`
+# en cours, ce qui pourrait laisser les conteneurs dans un état incohérent.
 concurrency:
   group: deploy-production
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_CMS_URL: https://cms.marleyportfolio.fr
+
   deploy:
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1
+        # Épinglé par SHA (v1.2.5) : l'action reçoit la clé SSH de prod.
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          # Empreinte SHA256 de la clé d'hôte du VPS (ssh-keyscan + ssh-keygen -lf).
+          fingerprint: ${{ secrets.VPS_FINGERPRINT }}
           script: |
+            set -euo pipefail
             cd portfolio
-            git pull
+            git fetch origin main
+            git reset --hard origin/main
             docker compose up -d --build
+            # Le Caddyfile est monté en fichier unique : le redémarrage
+            # force Caddy à relire la nouvelle version après le reset.
+            docker compose restart caddy
             docker image prune -f
+            for i in $(seq 1 30); do
+              if curl -fsS -o /dev/null https://marleyportfolio.fr; then
+                echo "Site OK"
+                exit 0
+              fi
+              sleep 5
+            done
+            echo "Health-check échoué : https://marleyportfolio.fr ne répond pas" >&2
+            exit 1

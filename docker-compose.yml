@@ -51,6 +51,9 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
+    environment:
+      CMS_ADMIN_USER: ${CMS_ADMIN_USER:?CMS_ADMIN_USER manquant dans .env}
+      CMS_ADMIN_HASH: ${CMS_ADMIN_HASH:?CMS_ADMIN_HASH manquant dans .env}
     ports:
       - "80:80"
       - "443:443"

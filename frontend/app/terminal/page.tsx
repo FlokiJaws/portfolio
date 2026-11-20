@@ -5,6 +5,7 @@ import { profile } from '@/data/profile';
 import type { Project } from '@/data/projects';
 import { getProjects } from '@/lib/cms';
 import { PageShell } from '@/components/PageShell';
+import { languages, tools, formatSkills } from '@/data/skills';
 
 type HistoryLine = { type: 'cmd' | 'out'; text: string; path?: string };
 
@@ -109,6 +110,8 @@ export default function TerminalPage() {
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const terminalEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const [matrixRain, setMatrixRain] = useState(false);
   const [matrixColumns, setMatrixColumns] = useState<MatrixColumn[]>([]);
@@ -149,26 +152,8 @@ export default function TerminalPage() {
         "Intervenant -- Lycee Saint-Jean (projet de M1)\n" +
         "  2025-2026\n" +
         "  Introduction au Big Data, a l'IA et a la cybersecurite aupres de classes de SNT.",
-      "languages.txt":
-        "Python        -- scripting, IA (LangGraph, RAG)\n" +
-        "C              -- crypto, calcul parallele (MPI/OpenMP)\n" +
-        "Java           -- back-end (Quarkus)\n" +
-        "TypeScript/JS  -- web (React, Next.js, Node.js)\n" +
-        "SQL            -- PostgreSQL, requetes, securite (anti-injection)\n" +
-        "Rust           -- bases, en apprentissage",
-      "tools.txt":
-        "Linux (Ubuntu)       -- administration, durcissement\n" +
-        "Docker / Compose     -- conteneurisation, deploiement\n" +
-        "Kubernetes           -- bases, en formation\n" +
-        "Git / GitHub Actions -- versioning, CI/CD\n" +
-        "PostgreSQL           -- bases de donnees relationnelles\n" +
-        "Firebase             -- auth, Firestore, Cloud Functions\n" +
-        "Strapi               -- CMS headless (ce portfolio)\n" +
-        "React / Next.js      -- interfaces web\n" +
-        "Quarkus              -- back-end Java, API REST\n" +
-        "Caddy                -- reverse proxy, HTTPS auto\n" +
-        "LangGraph / RAG      -- agents IA, Chroma\n" +
-        "MPI / OpenMP         -- calcul parallele (C)",
+      "languages.txt": formatSkills(languages),
+      "tools.txt": formatSkills(tools),
     };
     projects.forEach((p) => {
       content[p.slug] = {
@@ -186,16 +171,29 @@ export default function TerminalPage() {
   }, [projects]);
 
   useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    terminalEndRef.current?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
   }, [history, focusedProject, focusedContact]);
+
+  const viewOpen = Boolean(focusedContact || focusedProject);
+
+  const closeViews = () => {
+    setFocusedProject(null);
+    setFocusedContact(null);
+    setMatrixRain(false);
+  };
+
+  // Vue ouverte : focus sur « Fermer ». Vue fermée : retour à l'invite.
+  useEffect(() => {
+    if (viewOpen) closeButtonRef.current?.focus();
+    else if (!matrixRain) inputRef.current?.focus();
+  }, [viewOpen, matrixRain]);
 
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === 'c') {
-        setFocusedProject(null);
-        setFocusedContact(null);
-        setMatrixRain(false);
-      }
+      // Ctrl+C sert aussi à copier : on ne ferme que s'il n'y a pas de sélection.
+      const isCtrlC = e.ctrlKey && e.key.toLowerCase() === 'c' && !window.getSelection()?.toString();
+      if (e.key === 'Escape' || isCtrlC) closeViews();
     };
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
@@ -216,7 +214,7 @@ export default function TerminalPage() {
     if (command === "matrix") {
       setMatrixColumns(buildMatrixColumns(28, 18));
       setMatrixRain(true);
-      setHistory(prev => [...prev, { type: 'cmd', text: trimmedCmd, path: currentPath }, { type: 'out', text: "Wake up, Neo... (Ctrl+C pour sortir)" }]);
+      setHistory(prev => [...prev, { type: 'cmd', text: trimmedCmd, path: currentPath }, { type: 'out', text: "Wake up, Neo... (Ctrl+C, Échap ou tap pour sortir)" }]);
       return;
     }
 
@@ -236,7 +234,7 @@ export default function TerminalPage() {
         break;
       case "ls": output = fileSystem[currentPath]?.children.join("   ") || ""; break;
       case "pwd": output = currentPath; break;
-      case "help": output = "ls, cd, cat <file>, contact, clear, pwd. (Ctrl+C pour fermer une vue)"; break;
+      case "help": output = "ls, cd, cat <file>, contact, clear, pwd. (Échap ou Ctrl+C pour fermer une vue)"; break;
       case "cd":
         if (!target || target === "~") setCurrentPath("~");
         else if (target === "..") {
@@ -257,7 +255,8 @@ export default function TerminalPage() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Tab") {
+    // Tab ne complète que si l'invite contient du texte : sinon il navigue normalement.
+    if (e.key === "Tab" && !e.shiftKey && input.trim() !== "") {
       e.preventDefault();
       const words = input.split(" ");
       const lastWord = words.pop() || "";
@@ -288,7 +287,14 @@ export default function TerminalPage() {
         <div className="w-full max-w-4xl min-h-0 h-[65vh] sm:h-[68vh] flex flex-col bg-[#0d0d0d] border border-[#588157]/30 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden relative">
 
         {matrixRain && (
-          <div className="absolute inset-0 z-[80] overflow-hidden bg-black pointer-events-none">
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label="Fermer l'effet Matrix"
+            onClick={closeViews}
+            className="absolute inset-0 z-[80] overflow-hidden bg-black cursor-pointer"
+          >
+            <span className="absolute bottom-3 right-4 z-10 text-xs text-[#00ff41]/70 font-mono uppercase tracking-widest">tap / Échap pour sortir</span>
             <style>{`
               @keyframes matrix-fall {
                 0% { transform: translateY(-100%); opacity: 0; }
@@ -312,13 +318,20 @@ export default function TerminalPage() {
           </div>
         )}
 
-        {(focusedContact || focusedProject) && (
-          <div className="absolute inset-0 bg-[#0d0d0d] z-[60] flex flex-col p-5 sm:p-8 md:p-12 overflow-y-auto animate-in fade-in zoom-in duration-300">
+        {viewOpen && (
+          <div role="dialog" aria-modal="true" aria-label={focusedContact ? "Contact" : focusedProject!.title} className="absolute inset-0 bg-[#0d0d0d] z-[60] flex flex-col p-5 sm:p-8 md:p-12 overflow-y-auto animate-in fade-in zoom-in duration-300">
             <div className="flex flex-wrap gap-2 justify-between items-center mb-6 sm:mb-8 border-b border-[#588157]/20 pb-4">
-              <span className="text-[#A3B18A] text-[10px] tracking-widest uppercase font-bold italic break-words">
+              <span className="text-[#A3B18A] text-xs tracking-widest uppercase font-bold break-words">
                 {focusedContact ? "/users/marley/contact" : `Project // ${focusedProject!.title}`}
               </span>
-              <span className="text-gray-500 text-[10px] whitespace-nowrap">[ CTRL+C ] TO EXIT</span>
+              <button
+                ref={closeButtonRef}
+                type="button"
+                onClick={closeViews}
+                className="text-gray-400 hover:text-white text-xs whitespace-nowrap border border-white/10 hover:border-[#588157]/50 rounded px-2 py-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#588157]"
+              >
+                [ ESC ] FERMER
+              </button>
             </div>
 
             {focusedContact ? (
@@ -327,17 +340,17 @@ export default function TerminalPage() {
                 <div className="max-w-2xl bg-[#588157]/10 border-l-4 border-[#588157] p-4 sm:p-6 mb-8 sm:mb-12 text-base sm:text-lg italic text-gray-200 break-words">&quot;{focusedContact.sumup}&quot;</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-5xl">
                   <div className="space-y-6 sm:space-y-8">
-                    <div><p className="text-[#A3B18A] text-[10px] uppercase font-bold mb-2">Email</p><a href={`mailto:${focusedContact.email}`} className="text-base sm:text-xl text-white hover:text-[#A3B18A] font-bold italic break-all">{focusedContact.email}</a></div>
-                    <div><p className="text-[#A3B18A] text-[10px] uppercase font-bold mb-2">GitHub</p><a href={focusedContact.github} target="_blank" rel="noopener noreferrer" className="text-base sm:text-xl text-white hover:text-[#A3B18A] underline decoration-[#344E41] underline-offset-8 italic break-all">{focusedContact.github}</a></div>
-                    <div><p className="text-[#A3B18A] text-[10px] uppercase font-bold mb-2">LinkedIn</p><a href={focusedContact.linkedin} target="_blank" rel="noopener noreferrer" className="text-base sm:text-xl text-white hover:text-[#A3B18A] underline decoration-[#344E41] underline-offset-8 italic break-all">{focusedContact.linkedin}</a></div>
+                    <div><p className="text-[#A3B18A] text-xs uppercase font-bold mb-2">Email</p><a href={`mailto:${focusedContact.email}`} className="text-base sm:text-xl text-white hover:text-[#A3B18A] font-semibold break-all">{focusedContact.email}</a></div>
+                    <div><p className="text-[#A3B18A] text-xs uppercase font-bold mb-2">GitHub</p><a href={focusedContact.github} target="_blank" rel="noopener noreferrer" className="text-base sm:text-xl text-white hover:text-[#A3B18A] underline decoration-[#344E41] underline-offset-8 break-all">{focusedContact.github}</a></div>
+                    <div><p className="text-[#A3B18A] text-xs uppercase font-bold mb-2">LinkedIn</p><a href={focusedContact.linkedin} target="_blank" rel="noopener noreferrer" className="text-base sm:text-xl text-white hover:text-[#A3B18A] underline decoration-[#344E41] underline-offset-8 break-all">{focusedContact.linkedin}</a></div>
                     {focusedContact.links.map((l) => (
-                      <div key={l.url}><p className="text-[#A3B18A] text-[10px] uppercase font-bold mb-2">{l.label}</p><a href={l.url} target="_blank" rel="noopener noreferrer" className="text-base sm:text-xl text-white hover:text-[#A3B18A] underline decoration-[#344E41] underline-offset-8 italic break-all">{l.url}</a></div>
+                      <div key={l.url}><p className="text-[#A3B18A] text-xs uppercase font-bold mb-2">{l.label}</p><a href={l.url} target="_blank" rel="noopener noreferrer" className="text-base sm:text-xl text-white hover:text-[#A3B18A] underline decoration-[#344E41] underline-offset-8 break-all">{l.url}</a></div>
                     ))}
                   </div>
                   {focusedContact.cvUrl && (
                     <div className="flex flex-col justify-center items-center p-6 sm:p-10 border-2 border-dashed border-[#588157]/20 rounded-2xl bg-[#588157]/10">
-                      <p className="text-[10px] uppercase tracking-[0.4em] mb-6 sm:mb-8 text-gray-500 font-black italic text-center">Curriculum Vitæ</p>
-                      <a href={focusedContact.cvUrl} target="_blank" rel="noopener noreferrer" className="px-6 sm:px-10 py-3 sm:py-4 bg-[#DAD7CD] text-black font-black uppercase tracking-tighter shadow-[10px_10px_0px_0px_rgba(88,129,87,0.3)] hover:bg-[#3A5A40] hover:text-white transition-all text-sm sm:text-base">VIEW_FULL_CV.PDF</a>
+                      <p className="text-xs uppercase tracking-[0.4em] mb-6 sm:mb-8 text-gray-400 font-bold text-center">Curriculum Vitæ</p>
+                      <a href={focusedContact.cvUrl} target="_blank" rel="noopener noreferrer" className="px-6 sm:px-10 py-3 sm:py-4 bg-[#DAD7CD] text-black font-bold uppercase tracking-wide shadow-[10px_10px_0px_0px_rgba(88,129,87,0.3)] hover:bg-[#3A5A40] hover:text-white transition-all text-sm sm:text-base">VIEW_FULL_CV.PDF</a>
                     </div>
                   )}
                 </div>
@@ -364,11 +377,11 @@ export default function TerminalPage() {
                 )}
                 {focusedProject!.image && <div className="w-full max-w-4xl mx-auto mb-8 sm:mb-12 border border-[#588157]/20 rounded-lg overflow-hidden shadow-2xl"><img src={focusedProject!.image} alt={focusedProject!.title} className="w-full h-auto" /></div>}
                 <div className="flex flex-wrap gap-3 sm:gap-4">
-                  {focusedProject!.liveUrl && <a href={focusedProject!.liveUrl} target="_blank" rel="noopener noreferrer" className="px-5 sm:px-6 py-2.5 sm:py-3 bg-[#DAD7CD] text-black font-black uppercase tracking-tighter hover:bg-[#3A5A40] hover:text-white transition-all text-sm sm:text-base">Voir le site</a>}
+                  {focusedProject!.liveUrl && <a href={focusedProject!.liveUrl} target="_blank" rel="noopener noreferrer" className="px-5 sm:px-6 py-2.5 sm:py-3 bg-[#DAD7CD] text-black font-bold uppercase tracking-wide hover:bg-[#3A5A40] hover:text-white transition-all text-sm sm:text-base">Voir le site</a>}
                   {focusedProject!.repoUrl ? (
-                    <a href={focusedProject!.repoUrl} target="_blank" rel="noopener noreferrer" className="px-5 sm:px-6 py-2.5 sm:py-3 border border-[#588157]/30 text-white font-black uppercase tracking-tighter hover:bg-[#588157]/10 transition-all text-sm sm:text-base">Code source</a>
+                    <a href={focusedProject!.repoUrl} target="_blank" rel="noopener noreferrer" className="px-5 sm:px-6 py-2.5 sm:py-3 border border-[#588157]/30 text-white font-bold uppercase tracking-wide hover:bg-[#588157]/10 transition-all text-sm sm:text-base">Code source</a>
                   ) : focusedProject!.repoPrivate ? (
-                    <span title="Code source privé" className="px-5 sm:px-6 py-2.5 sm:py-3 border border-white/10 text-gray-600 font-black uppercase tracking-tighter text-sm sm:text-base cursor-default">🔒 Repo privé</span>
+                    <span title="Code source privé" className="px-5 sm:px-6 py-2.5 sm:py-3 border border-white/10 text-gray-400 font-bold uppercase tracking-wide text-sm sm:text-base cursor-default">🔒 Repo privé</span>
                   ) : null}
                 </div>
               </>
@@ -382,7 +395,7 @@ export default function TerminalPage() {
             <div className="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-inner"></div>
             <div className="w-3 h-3 rounded-full bg-[#27c93f] shadow-inner"></div>
           </div>
-          <span className="min-w-0 truncate text-[9px] sm:text-[10px] text-gray-400 font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase italic">{profile.handle} ~ v4.0</span>
+          <span className="min-w-0 truncate text-xs text-gray-400 font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase">{profile.handle} ~ v4.0</span>
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 md:p-8 scroll-smooth">
@@ -406,7 +419,9 @@ export default function TerminalPage() {
               marley@portfolio:<span className="text-[#588157]">{currentPath}</span>$
             </span>
             <input
+              ref={inputRef}
               autoFocus
+              aria-label="Commande du terminal"
               className="bg-transparent border-none outline-none flex-1 min-w-[80px] text-white font-bold caret-[#588157] text-base"
               value={input}
               onChange={(e) => setInput(e.target.value)}

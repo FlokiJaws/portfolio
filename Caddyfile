@@ -1,8 +1,39 @@
+(security) {
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options nosniff
+        Referrer-Policy strict-origin-when-cross-origin
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        -Server
+        -X-Powered-By
+    }
+}
+
 marleyportfolio.fr, www.marleyportfolio.fr {
+    import security
+    header {
+        X-Frame-Options DENY
+        # Next.js injecte des scripts inline (hydratation) : 'unsafe-inline' requis sans nonce.
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cms.marleyportfolio.fr; font-src 'self' data:; connect-src 'self' https://cms.marleyportfolio.fr; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+    }
     reverse_proxy app:3000
 }
 
 cms.marleyportfolio.fr {
+    # Strapi pose déjà sa propre CSP via son middleware de sécurité.
+    import security
+
+    # Mot de passe devant l'admin Strapi (identifiant et hash bcrypt dans .env).
+    # Le panneau appelle sa propre API /admin/* avec "Authorization: Bearer <jwt>",
+    # ce qui écrase l'en-tête Basic : ces appels-là passent, Strapi vérifie le JWT.
+    # Les routes de connexion exigent toujours le mot de passe Caddy,
+    # même avec un faux en-tête Bearer, pour bloquer le brute-force.
+    @admin_protected expression `path('/admin', '/admin/*') && (!header({'Authorization': 'Bearer *'}) || path('/admin/login', '/admin/register-admin', '/admin/register', '/admin/forgot-password', '/admin/reset-password', '/admin/renew-token', '/admin/access-token'))`
+    basic_auth @admin_protected {
+        {$CMS_ADMIN_USER} {$CMS_ADMIN_HASH}
+    }
+
     reverse_proxy strapi:1337
 }
 
