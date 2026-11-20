@@ -227,6 +227,15 @@ export default function TerminalPage() {
     switch (command) {
       case "contact": setFocusedContact(contactData); return;
       case "cat":
+        if (!target) {
+          output =
+            " /\\_/\\\n" +
+            "( o.o )   miaou ?\n" +
+            " > ^ <\n" +
+            "\n" +
+            "cat sans fichier, c'est juste un chat. Essaie `cat bio.txt` (ou `ls` pour voir ce qu'il y a à lire).";
+          break;
+        }
         if (target === "contact") { setFocusedContact(contactData); return; }
         const fileData = target ? fileContent[target] : undefined;
         if (fileData && typeof fileData === 'object') { setFocusedProject(fileData); return; }
