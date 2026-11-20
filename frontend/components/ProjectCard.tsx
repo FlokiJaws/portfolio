@@ -21,7 +21,7 @@ export function ProjectCard({ project }: { project: Project }) {
       <div className="group border border-white/10 rounded-xl p-5 sm:p-6 bg-[#0d0d0d] flex flex-col transition-colors hover:border-[#588157]/40 hover:bg-[#588157]/[0.05]">
         <div className="flex items-start justify-between gap-3 mb-2">
           <h3 className="text-lg font-bold text-white break-words">{project.title}</h3>
-          <span className="shrink-0 text-[10px] uppercase tracking-wide text-[#A3B18A] bg-[#588157]/15 px-2 py-1 rounded-full whitespace-nowrap">
+          <span className="shrink-0 text-xs uppercase tracking-wide text-[#A3B18A] bg-[#588157]/15 px-2 py-1 rounded-full whitespace-nowrap">
             {project.context}{project.year ? ` · ${project.year}` : ''}
           </span>
         </div>
@@ -29,7 +29,7 @@ export function ProjectCard({ project }: { project: Project }) {
         {project.tags && project.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {project.tags.map((t) => (
-              <span key={t} className="text-[10px] uppercase tracking-wide bg-white/5 text-gray-400 px-2 py-1 rounded">
+              <span key={t} className="text-xs uppercase tracking-wide bg-white/5 text-gray-400 px-2 py-1 rounded">
                 {t}
               </span>
             ))}
@@ -54,7 +54,7 @@ export function ProjectCard({ project }: { project: Project }) {
           ) : project.repoPrivate ? (
             <span
               title="Code source privé"
-              className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-600 cursor-default"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-400 cursor-default"
             >
               <IconLock className="w-3.5 h-3.5" /> Repo privé
             </span>
@@ -76,12 +76,12 @@ export function ProjectCard({ project }: { project: Project }) {
             <button
               onClick={() => setOpen(false)}
               aria-label="Fermer"
-              className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors text-xl leading-none"
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors text-xl leading-none"
             >
               ✕
             </button>
 
-            <span className="text-[10px] uppercase tracking-wide text-[#A3B18A] bg-[#588157]/15 px-2 py-1 rounded-full">
+            <span className="text-xs uppercase tracking-wide text-[#A3B18A] bg-[#588157]/15 px-2 py-1 rounded-full">
               {project.context}{project.year ? ` · ${project.year}` : ''}
             </span>
             <h3 className="text-2xl sm:text-3xl font-black text-white mt-4 mb-4 tracking-tight break-words">{project.title}</h3>
@@ -103,7 +103,7 @@ export function ProjectCard({ project }: { project: Project }) {
             {project.tags && project.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {project.tags.map((t) => (
-                  <span key={t} className="text-[10px] uppercase tracking-wide bg-white/5 text-gray-400 px-2 py-1 rounded">
+                  <span key={t} className="text-xs uppercase tracking-wide bg-white/5 text-gray-400 px-2 py-1 rounded">
                     {t}
                   </span>
                 ))}
@@ -140,7 +140,7 @@ export function ProjectCard({ project }: { project: Project }) {
               ) : project.repoPrivate ? (
                 <span
                   title="Code source privé"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/10 rounded-lg text-sm text-gray-600 cursor-default"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/10 rounded-lg text-sm text-gray-400 cursor-default"
                 >
                   <IconLock className="w-4 h-4" /> Repo privé
                 </span>
